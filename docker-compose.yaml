@@ -1,0 +1,11 @@
+version: '3'
+services:
+  bbConA:
+    image: busybox
+    container_name: bbConA
+    command: sleep 3600
+
+  bbConB:
+    image: busybox
+    container_name: bbConB
+    command: sleep 3600

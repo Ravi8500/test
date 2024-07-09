@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Donation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: url('https://example.com/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+        }
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 40px;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        form {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"], input[type="number"], input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        .orphanages {
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .orphanage-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            cursor: pointer;
+            color: black;
+        }
+        .orphanage-item:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="start-page" class="page active">
+        <h1>Food Donation</h1>
+        <button onclick="showPage('find-orphanage-page')">Click to Find Orphanage</button>
+    </div>
+
+    <div id="find-orphanage-page" class="page">
+        <form id="location-form">
+            <label for="location">Location of User</label>
+            <input type="text" id="location" name="location" placeholder="Enter your location" required>
+            <button type="submit">Find Orphanages</button>
+        </form>
+        <div class="orphanages" id="orphanages"></div>
+    </div>
+
+    <div id="donation-page" class="page">
+        <form id="donation-form" action="https://api.web3forms.com/submit" method="POST">
+            <input type="hidden" name="access_key" value="643b426e-9d1f-4e42-a656-7e2fe27b62e6">
+            <label for="food-description">Food Description</label>
+            <input type="text" id="food-description" name="food-description" placeholder="Enter food description" required>
+            <label for="donation-location">Location of User</label>
+            <input type="text" id="donation-location" name="location" required readonly>
+            <label for="contact-number">Contact Number</label>
+            <input type="tel" id="contact-number" name="contact-number" placeholder="Enter contact number" required>
+            <button type="submit">Submit Donation</button>
+        </form>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        document.getElementById('location-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const location = document.getElementById('location').value;
+            const response = await fetch('/get_orphanages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ location })
+            });
+            const data = await response.json();
+            const orphanages = data.response;
+            const orphanagesDiv = document.getElementById('orphanages');
+            orphanagesDiv.innerHTML = '';  // Clear previous results
+
+            orphanages.split('\n').forEach((orphanage, index) => {
+                if (orphanage.trim()) {
+                    const div = document.createElement('div');
+                    div.className = 'orphanage-item';
+                    div.innerText = orphanage;
+                    div.addEventListener('click', () => {
+                        document.getElementById('donation-location').value = orphanage;
+                        showPage('donation-page');
+                    });
+                    orphanagesDiv.appendChild(div);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
